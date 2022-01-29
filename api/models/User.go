@@ -33,7 +33,7 @@ func (u *User) BeforeSave() error {
 }
 
 func (u *User) Prepare() {
-	u.Username = html.EscapeStrings(strings.TrimSpace(u.Username))
+	u.Username = html.EscapeString(strings.TrimSpace(u.Username))
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
 	u.CreatedAt = time.Now()
 	u.UpdatedAt = time.Now()
