@@ -22,11 +22,11 @@ type Server struct {
 
 var errList = make(map[string]string)
 
-func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
+func (server *Server) InitializeRoutes(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
 
 	var err error
 
-	// If you are using mysql, i added support for you here(dont forgot to edit the .env file)
+	// Both mysql and postgres options
 	if Dbdriver == "mysql" {
 		DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
 		server.DB, err = gorm.Open(Dbdriver, DBURL)
@@ -61,7 +61,7 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 	server.Router = gin.Default()
 	server.Router.Use(middlewares.CORSMiddleware())
 
-	server.InitializeRoutes()
+	server.InitializeRoutes(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName)
 
 }
 
