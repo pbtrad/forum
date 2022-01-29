@@ -58,57 +58,57 @@ func (u *User) Validate(action string) map[string]string {
 	switch strings.ToLower(action) {
 	case "update":
 		if u.Email == "" {
-			err = errors.New("Required Email")
+			err = errors.New("required Email")
 			errorMessages["Required_email"] = err.Error()
 		}
 		if u.Email != "" {
 			if err = checkmail.ValidateFormat(u.Email); err != nil {
-				err = errors.New("Invalid Email")
+				err = errors.New("invalid Email")
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
 
 	case "login":
 		if u.Password == "" {
-			err = errors.New("Required Password")
+			err = errors.New("required Password")
 			errorMessages["Required_password"] = err.Error()
 		}
 		if u.Email == "" {
-			err = errors.New("Required Email")
+			err = errors.New("required Email")
 			errorMessages["Required_email"] = err.Error()
 		}
 		if u.Email != "" {
 			if err = checkmail.ValidateFormat(u.Email); err != nil {
-				err = errors.New("Invalid Email")
+				err = errors.New("invalid Email")
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
 	case "forgotpassword":
 		if u.Email == "" {
-			err = errors.New("Required Email")
+			err = errors.New("required Email")
 			errorMessages["Required_email"] = err.Error()
 		}
 		if u.Email != "" {
 			if err = checkmail.ValidateFormat(u.Email); err != nil {
-				err = errors.New("Invalid Email")
+				err = errors.New("invalid Email")
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
 	default:
 		if u.Username == "" {
-			err = errors.New("Required Username")
+			err = errors.New("required Username")
 			errorMessages["Required_username"] = err.Error()
 		}
 		if u.Password == "" {
-			err = errors.New("Required Password")
+			err = errors.New("required Password")
 			errorMessages["Required_password"] = err.Error()
 		}
 		if u.Password != "" && len(u.Password) < 6 {
-			err = errors.New("Password should be at least 6 characters")
+			err = errors.New("password should be at least 6 characters")
 			errorMessages["Invalid_password"] = err.Error()
 		}
 		if u.Email == "" {
-			err = errors.New("Required Email")
+			err = errors.New("required Email")
 			errorMessages["Required_email"] = err.Error()
 
 		}
