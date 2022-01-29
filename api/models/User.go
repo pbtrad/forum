@@ -3,12 +3,14 @@ package models
 import (
 	"errors"
 	"html"
+	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/badoux/checkmail"
 	"github.com/pbtrad/forum/api/security"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -44,7 +46,7 @@ func (u *User) AfterFind() (err error) {
 	if u.AvatarPath != "" {
 		u.AvatarPath = os.Getenv("DO_SPACES_URL") + u.AvatarPath
 	}
-	//dont return the user password
+	//don't return the user password
 	// u.Password = ""
 	return nil
 }
@@ -118,4 +120,120 @@ func (u *User) Validate(action string) map[string]string {
 		}
 	}
 	return errorMessages
+}
+
+func (u *User) saveUser(db *gorm.DB) (*User, error) {
+	var err error
+	err = db.Debug().Create(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+// ADMIN USE
+func (u *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
+	var err error
+	users := []User{}
+	err = db.Debug().Model(&User{}).Limit(100).Find(&users).Error
+	if err != nil {
+		return &[]User{}, err
+	}
+	return &users, err
+}
+
+func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
+	var err error
+	err = db.Debug().Model(User{}).Where("id = ?", uid).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	if gorm.IsRecordNotFoundError(err) {
+		return &User{}, errors.New("User Not Found")
+	}
+	return u, err
+}
+
+func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
+
+	if u.Password != "" {
+		// To hash the password
+		err := u.BeforeSave()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+			map[string]interface{}{
+				"password":  u.Password,
+				"email":     u.Email,
+				"update_at": time.Now(),
+			},
+		)
+	}
+
+	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"email":     u.Email,
+			"update_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+
+	// This is the display the updated user
+	err := db.Debug().Model(&User{}).Where("id = ?", uid).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+func (u *User) UpdateAUserAvatar(db *gorm.DB, uid uint32) (*User, error) {
+	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"avatar_path": u.AvatarPath,
+			"update_at":   time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+	// This is the display the updated user
+	err := db.Debug().Model(&User{}).Where("id = ?", uid).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+func (u *User) DeleteAUser(db *gorm.DB, uid uint32) (int64, error) {
+
+	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).Delete(&User{})
+
+	if db.Error != nil {
+		return 0, db.Error
+	}
+	return db.RowsAffected, nil
+}
+
+func (u *User) UpdatePassword(db *gorm.DB) error {
+
+	// To hash the password
+	err := u.BeforeSave()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db = db.Debug().Model(&User{}).Where("email = ?", u.Email).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"password":  u.Password,
+			"update_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return db.Error
+	}
+	return nil
 }
