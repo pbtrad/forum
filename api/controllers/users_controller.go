@@ -62,7 +62,7 @@ func (server *Server) CreateUser(c *gin.Context) {
 		})
 		return
 	}
-	userCreated, err := user.saveUser(server.DB)
+	userCreated, err := user.SaveUser(server.DB)
 	if err != nil {
 		formattedError := formaterror.FormatError(err.Error())
 		errList = formattedError

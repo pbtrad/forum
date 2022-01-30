@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/badoux/checkmail"
+	"github.com/jinzhu/gorm"
 	"github.com/pbtrad/forum/api/security"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -114,7 +114,7 @@ func (u *User) Validate(action string) map[string]string {
 		}
 		if u.Email != "" {
 			if err = checkmail.ValidateFormat(u.Email); err != nil {
-				err = errors.New("Invalid Email")
+				err = errors.New("invalid Email")
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
@@ -122,7 +122,7 @@ func (u *User) Validate(action string) map[string]string {
 	return errorMessages
 }
 
-func (u *User) saveUser(db *gorm.DB) (*User, error) {
+func (u *User) SaveUser(db *gorm.DB) (*User, error) {
 	var err error
 	err = db.Debug().Create(&u).Error
 	if err != nil {

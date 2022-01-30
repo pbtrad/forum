@@ -22,7 +22,7 @@ type Server struct {
 
 var errList = make(map[string]string)
 
-func (server *Server) InitializeRoutes(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
+func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
 
 	var err error
 
@@ -61,7 +61,7 @@ func (server *Server) InitializeRoutes(Dbdriver, DbUser, DbPassword, DbPort, DbH
 	server.Router = gin.Default()
 	server.Router.Use(middlewares.CORSMiddleware())
 
-	server.InitializeRoutes(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName)
+	server.Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName)
 
 }
 
